@@ -1,74 +1,46 @@
 import streamlit as st
 import urllib.parse
 
-st.set_page_config(page_title="Hiebawi Bros Order", layout="centered")
+st.set_page_config(page_title="Hiebawi Order", layout="wide")
 
-# تنسيق لجعل الخانات فوق الصورة بالضبط
+# تنسيق الخط ليكون واضح جداً كما طلبت
 st.markdown("""
     <style>
-    .reportview-container { background: white; }
-    .img-overlay-container {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-    }
-    .input-box {
-        position: absolute;
-        background: rgba(255, 255, 0, 0.3); /* لون أصفر شفاف للتأكد من المكان */
-        border: 1px solid #1E3A8A;
-        text-align: center;
-        font-weight: bold;
-        color: black;
-    }
-    /* تعديل حجم الخط والشفافية */
-    input {
-        background-color: transparent !important;
-        border: none !important;
-        text-align: center !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
+    .main { direction: rtl; text-align: right; }
+    .stNumberInput label { font-size: 20px !important; color: #1E3A8A !important; font-weight: bold; }
+    input { height: 45px !important; font-size: 22px !important; }
+    .header { background-color: #fca311; padding: 10px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; }
     </style>
     """, unsafe_allow_html=True)
 
-if 'page' not in st.session_state:
-    st.session_state.page = 'grains'
-
 RECEIVING_NUMBER = "9613220893"
+order = {}
 
-if st.session_state.page == 'grains':
-    st.write("### نموذج الحبوب - تعبئة 1000غ (تجربة)")
-    
-    # حاوية الصورة والخانات
-    st.markdown('<div class="img-overlay-container">', unsafe_allow_html=True)
-    
-    # عرض صورة الورقة الأصلية
-    st.image("https://raw.githubusercontent.com/helbawibros/-/main/image.png", use_container_width=True)
-    
-    # --- توزيع خانات الإدخال برمجياً فوق الأعمدة الصفراء ---
-    # ملاحظة: هذه الإحداثيات (top, left) سنضبطها بدقة الآن
-    order_data = {}
-    
-    # تجربة أول 5 أصناف في عمود 1000غ
-    # سنستخدم st.number_input ونضعه في حاوية CSS
-    
-    items_1000g = ["فحلي 12", "فحلي 10", "فحلي 9", "كسر", "حب"]
-    
-    # هذه الخانات ستظهر حالياً تحت بعضها للتأكد من عمل الواتساب
-    # بمجرد موافقتك سأقوم بدمجها "فوق" الصورة بالإحداثيات
-    customer = st.text_input("إسم الزبون:")
-    
-    col1, col2 = st.columns([2,1])
-    with col2:
-        st.write("العدد (الأصفر)")
-        for item in items_1000g:
-            val = st.number_input(f"{item}", min_value=0, step=1, key=item)
-            if val > 0:
-                order_data[item] = val
+st.markdown('<div class="header">نموذج الحبوب - تعبئة 1000غ</div>', unsafe_allow_html=True)
+customer = st.text_input("👤 إسم الزبون (مطلوب):")
 
-    if st.button("إرسال الطلب المكتوب"):
-        if customer and order_data:
-            msg = f"طلبية حبوب\nالزبون: {customer}\n" + "\n".join([f"{k}: {v}" for k, v in order_data.items()])
-            link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
-            st.markdown(f'<a href="{link}" target="_blank" style="background:green;color:white;padding:10px;text-decoration:none;">تأكيد واتساب</a>', unsafe_allow_html=True)
+# قائمة الأصناف حسب ترتيب ورقتك تماماً
+items_1000g = [
+    "فحلي - 12 -", "فحلي - 10 -", "فحلي - 9 -", "كسر", "حب", 
+    "مجروش", "عريض", "صنوبرية", "حمراء طويلة", "حمراء مدعبلة",
+    "عريضة", "أبيض رفيع", "أحمر", "أحمر موردي", "مجروش (عدس)"
+]
+
+# عرض الخانات بشكل عمودي (خانة العدد الصفراء)
+for item in items_1000g:
+    # جعل الخانة تأخذ مساحة واضحة للكتابة
+    val = st.number_input(f"العدد لـ {item}", min_value=0, step=1, key=item)
+    if val > 0:
+        order[item] = val
+
+st.divider()
+
+if st.button("✅ إرسال الطلبية كاملة"):
+    if customer and order:
+        msg = f"طلبية حبوب\nالزبون: {customer}\n" + "\n".join([f"{k}: {v}" for k, v in order.items()])
+        link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
+        st.markdown(f'<a href="{link}" target="_blank" style="background-color: #25d366; color: white; padding: 20px; text-decoration: none; border-radius: 10px; display: block; text-align: center; font-size: 20px;">إضغط هنا لتأكيد الإرسال للشركة</a>', unsafe_allow_html=True)
+    else:
+        st.error("الرجاء كتابة اسم الزبون وتعبئة صنف واحد على الأقل")
+
 
