@@ -4,12 +4,12 @@ import urllib.parse
 # 1. إعدادات الصفحة العامة
 st.set_page_config(page_title="شركة حلباوي إخوان", layout="wide")
 
-# 2. تصميم الواجهة (CSS) - تم تعديل الألوان هنا لتكون واضحة
+# 2. تصميم الواجهة (CSS) - تحديث الألوان حسب طلبك
 st.markdown("""
     <style>
-    .main { direction: rtl; text-align: right; }
+    .main { direction: rtl; text-align: right; background-color: #0E1117; } /* خلفية داكنة لتناسب الخط الأبيض */
     
-    /* تنسيق العناوين الفرعية داخل القوائم */
+    /* تنسيق العناوين الفرعية (تبقى كما هي) */
     .category-header { 
         background-color: #e9ecef; 
         color: #1E3A8A; 
@@ -23,29 +23,31 @@ st.markdown("""
         text-align: right;
     }
 
-    /* جعل أسماء الأصناف باللون الأسود الواضح */
-    .stText, p, span { color: black !important; font-weight: bold !important; }
+    /* جعل أسماء الأصناف باللون الأبيض الواضح جداً */
+    .item-name { 
+        color: white !important; 
+        font-weight: bold !important; 
+        font-size: 18px !important;
+    }
 
-    /* تنسيق خانة إدخال الرقم - الخط أسود عريض */
+    /* تنسيق خانة إدخال الرقم - الخط أسود على خلفية صفراء */
     input { 
         background-color: #ffffcc !important; 
         color: black !important; 
         font-weight: bold !important; 
         height: 45px !important; 
         font-size: 22px !important; 
-        -webkit-text-fill-color: black !important; /* لضمان اللون الأسود في الآيفون */
-    }
-
-    /* تنسيق رأس القائمة المنزلقة (Expander) */
-    .streamlit-expanderHeader { 
-        background-color: #f8f9fa;
-        font-size: 20px !important; 
-        font-weight: bold !important; 
-        color: #1E3A8A !important; 
+        -webkit-text-fill-color: black !important;
     }
 
     .header-box { background-color: #1E3A8A; color: white; text-align: center; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
     .stButton button { background-color: #1E3A8A; color: white !important; font-weight: bold; height: 50px; }
+    
+    .streamlit-expanderHeader { 
+        background-color: #1E3A8A !important; 
+        color: white !important; 
+        font-size: 20px !important; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -54,14 +56,16 @@ if 'page' not in st.session_state:
 
 RECEIVING_NUMBER = "9613220893"
 
-# دالة لعرض القوائم مع العناوين داخل القسم
+# دالة لعرض القوائم مع أسماء أصناف بيضاء
 def render_list(items_list, key_suffix, order_dict, label_suffix):
     for item in items_list:
         if item.startswith("-"):
             st.markdown(f'<div class="category-header">{item[1:]}</div>', unsafe_allow_html=True)
         else:
             c1, c2 = st.columns([3, 1])
-            with c1: st.write(f"{item}")
+            with c1: 
+                # وضع اسم الصنف داخل تنسيق اللون الأبيض
+                st.markdown(f'<p class="item-name">{item}</p>', unsafe_allow_html=True)
             with c2:
                 q = st.number_input("", min_value=0, step=1, key=f"{key_suffix}_{item}", label_visibility="collapsed")
                 if q > 0:
@@ -82,11 +86,10 @@ if st.session_state.page == 'home':
             st.session_state.page = 'spices'
             st.rerun()
 
-# --- نموذج الحبوب المطور ---
+# --- نموذج الحبوب المطور بالخط الأبيض ---
 elif st.session_state.page == 'grains':
     st.markdown('<div class="header-box"><h2>نموذج الحبوب الكامل</h2></div>', unsafe_allow_html=True)
-    st.image("https://raw.githubusercontent.com/helbawibros/-/main/image.png", use_container_width=True)
-
+    
     customer = st.text_input("👤 إسم الزبون (مطلوب):")
     full_order = {}
 
@@ -125,7 +128,7 @@ elif st.session_state.page == 'grains':
     with st.expander("📋 تعبئة مختلفة", expanded=False):
         list_misc = [
             "-سكر نبات", "100 غ × 12", "200 غ × 12", "-ملح", "ناعم 700 غ × 24", "ناعم 3 كلغ × 6", "خشن 1 كلغ × 12",
-            "-علب", "فانيليا 20 غ × 12", "باكينغ بودر 20 غ × 12", "-كرتون", "صنوبر × 12", "مسكة حب × 25",
+            "-علب", "fانية 20 غ × 12", "باكينغ بودر 20 غ × 12", "-كرتون", "صنوبر × 12", "مسكة حب × 25",
             "-سمسم", "مقشور 100 غ × 12", "محمص 100 غ × 12", "-زهورات", "زهورات 100 غ × 12", "زهورات 200 غ × 12",
             "-قمح", "مقشور 2 كلغ", "مقشور 5 كلغ", "-مختلف", "بابونج 100 غ × 12", "بطاطا شيبس 100 غ", "بامية زهرة 100 غ", "كاكاو 100 غ"
         ]
@@ -149,4 +152,3 @@ elif st.session_state.page == 'spices':
     if st.button("🔙 عودة"):
         st.session_state.page = 'home'
         st.rerun()
-
