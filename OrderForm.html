@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<style>
+    body { font-family: Arial, sans-serif; color: #1a4d80; } /* اللون الأزرق الداكن */
+    table { width: 100%; border-collapse: collapse; border: 2px solid #1a4d80; }
+    th, td { border: 1px solid #1a4d80; padding: 5px; text-align: center; font-size: 14px; }
+    .header-section { background-color: #f0f4f8; font-weight: bold; }
+    input[type="number"] { width: 100%; border: none; background: transparent; text-align: center; color: blue; }
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center;">طلب مبيعات</h2>
+
+<table>
+    <tr class="header-section">
+        <th colspan="4">تعبئة 1000 غ</th>
+        <th colspan="4">تعبئة 500 غ</th>
+    </tr>
+    <tr>
+        <th>الصنف</th>
+        <th>النوع</th>
+        <th>العدد</th>
+        <th>الطرد</th>
+        <th>الصنف</th>
+        <th>النوع</th>
+        <th>العدد</th>
+        <th>الطرد</th>
+    </tr>
+    <tr>
+        <td rowspan="4"><b>حمص</b></td>
+        <td>فحلي - 12 -</td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td rowspan="3"><b>سمسم</b></td>
+        <td>مقشور</td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+    </tr>
+    <tr>
+        <td>فحلي - 10 -</td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td>محمص</td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+    </tr>
+    <tr>
+        <td>فحلي - 9 -</td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td>محمص بلدي</td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+    </tr>
+    </table>
+
+</body>
+</html>
