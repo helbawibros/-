@@ -4,39 +4,37 @@ import urllib.parse
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="شركة حلباوي إخوان", layout="wide")
 
-# 2. تصميم الواجهة المطور (حل مشكلة اختفاء الأسماء)
+# 2. تصميم الواجهة (الأصناف بمربعات صغيرة وجذابة)
 st.markdown("""
     <style>
-    /* تثبيت خلفية التطبيق العامّة داكنة */
     .stApp { background-color: #0E1117; }
     
     .category-header { 
-        background-color: #e9ecef; color: #1E3A8A; padding: 10px 15px; border-radius: 5px; 
-        font-weight: bold; font-size: 18px; margin-top: 15px; border-right: 5px solid #fca311; text-align: right;
+        background-color: #e9ecef; color: #1E3A8A; padding: 8px 12px; border-radius: 5px; 
+        font-weight: bold; font-size: 16px; margin-top: 15px; border-right: 5px solid #fca311; text-align: right;
     }
 
-    /* الحل النهائي: خلفية زرقاء ثابتة للاسم لضمان ظهوره مهما كان وضع الهاتف */
-    .item-name { 
+    /* تعديل المربع الأزرق ليكون على حجم الكلمة فقط */
+    .item-box { 
+        display: inline-block;
         color: white !important; 
         font-weight: bold !important; 
-        font-size: 19px !important; 
+        font-size: 18px !important; 
         background-color: #1E3A8A !important; 
-        padding: 10px;
+        padding: 5px 12px;
         border-radius: 8px;
-        display: block;
         text-align: right;
-        margin-bottom: 5px;
+        min-width: 120px; /* عرض أدنى لتوحيد الشكل قليلاً */
     }
 
-    /* خانات الإدخال صفراء ثابتة بخط أسود عريض */
     input { 
         background-color: #ffffcc !important; color: black !important; font-weight: bold !important; 
-        height: 48px !important; font-size: 24px !important; -webkit-text-fill-color: black !important;
+        height: 40px !important; font-size: 20px !important; -webkit-text-fill-color: black !important;
     }
 
     .header-box { background-color: #1E3A8A; color: white; text-align: center; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-    .stButton button { background-color: #fca311; color: #1E3A8A !important; font-weight: bold; height: 55px; font-size: 18px; }
-    .streamlit-expanderHeader { background-color: #1E3A8A !important; color: white !important; font-size: 20px !important; border-radius: 5px; }
+    .stButton button { background-color: #fca311; color: #1E3A8A !important; font-weight: bold; height: 50px; }
+    .streamlit-expanderHeader { background-color: #1E3A8A !important; color: white !important; font-size: 19px !important; border-radius: 5px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -50,10 +48,10 @@ def render_list(items_list, key_suffix, order_dict, label_suffix):
         if item.startswith("-"):
             st.markdown(f'<div class="category-header">{item[1:]}</div>', unsafe_allow_html=True)
         else:
-            c1, c2 = st.columns([3, 1.2])
+            # استخدام أعمدة متقاربة جداً لجعل الرقم بجانب الاسم
+            c1, c2 = st.columns([2, 1])
             with c1: 
-                # الصنف الآن يظهر داخل مربع أزرق بخط أبيض ثابت
-                st.markdown(f'<div class="item-name">{item}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="item-box">{item}</div>', unsafe_allow_html=True)
             with c2:
                 q = st.number_input("", min_value=0, step=1, key=f"{key_suffix}_{item}", label_visibility="collapsed")
                 if q > 0: order_dict[f"{item} ({label_suffix})"] = q
@@ -64,10 +62,10 @@ if st.session_state.page == 'home':
     st.markdown('<div class="header-box"><h1>نظام طلبيات حلباوي إخوان</h1></div>', unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🌾 فتح نموذج الحبوب", use_container_width=True):
+        if st.button("🌾 نموذج الحبوب", use_container_width=True):
             st.session_state.page = 'grains'; st.rerun()
     with col2:
-        if st.button("🌶️ فتح نموذج البهارات", use_container_width=True):
+        if st.button("🌶️ نموذج البهارات", use_container_width=True):
             st.session_state.page = 'spices'; st.rerun()
 
 # --- نموذج الحبوب ---
@@ -87,7 +85,7 @@ elif st.session_state.page == 'grains':
     if st.button("🚀 إرسال طلبية الحبوب", use_container_width=True):
         if customer and full_order:
             msg = f"طلبية حبوب: {customer}\n" + "\n".join([f"• {k}: {v}" for k, v in full_order.items()])
-            st.markdown(f'<a href="https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}" target="_blank" style="background:#25d366;color:white;padding:15px;display:block;text-align:center;text-decoration:none;border-radius:10px;font-weight:bold;">تأكيد الإرسال للشركة</a>', unsafe_allow_html=True)
+            st.markdown(f'<a href="https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}" target="_blank" style="background:#25d366;color:white;padding:15px;display:block;text-align:center;text-decoration:none;border-radius:10px;font-weight:bold;">تأكيد الإرسال</a>', unsafe_allow_html=True)
     if st.button("🔙 عودة"): st.session_state.page = 'home'; st.rerun()
 
 # --- نموذج البهارات ---
@@ -96,22 +94,22 @@ elif st.session_state.page == 'spices':
     customer_s = st.text_input("👤 إسم الزبون:")
     spice_order = {}
 
-    with st.expander("🌶️ بهارات ناعمة وخاصة 50 غ"):
-        render_list(["-بهارات ناعمة 50 غ دزينة", "بهار حلو", "فلفل أسود", "فلفل أحمر", "قرفة", "سبع بهارات", "دقة كعك", "كمون", "كزبرة", "كراوية", "كاري", "سماق", "يانسون", "عقدة صفراء", "فليفلة حلوة", "حامض", "ثوم مجفف", "شومر", "زعتر أوريغانو", "بفتاك", "بابريكا"], "sp50", spice_order, "50غ")
-        render_list(["-بهارات خاصة 50 غرام", "كبة", "فلافل", "مغربية", "كبسة", "دجاج", "طاووق", "بيتزا", "همبرغر", "شاورما لحمة", "شاورما دجاج", "كفتة", "سمك", "سجق", "كنتكي", "مقانق", "فاهيتا", "فيلادلفيا", "مشاوي", "برياني", "اسكالوب دجاج", "بروستد", "كرسبي", "فرنسيسكو", "ناغتس", "أرز", "تطبيقة", "صيني", "روستو", "مكسيكانا", "صيادية", "منسف لحمة", "ستيك", "غريل أرجنتيني"], "spec50", spice_order, "50غ خاصة")
+    with st.expander("🌶️ بهارات 50 غ (ناعمة وخاصة)"):
+        render_list(["-بهارات ناعمة 50 غ", "بهار حلو", "فلفل أسود", "فلفل أحمر", "قرفة", "سبع بهارات", "دقة كعك", "كمون", "كزبرة", "كراوية", "كاري", "سماق", "يانسون", "عقدة صفراء", "فليفلة حلوة", "حامض", "ثوم مجفف", "شومر", "زعتر أوريغانو", "بفتاك", "بابريكا"], "sp50", spice_order, "50غ")
+        render_list(["-بهارات خاصة 50 غ", "كبة", "فلافل", "مغربية", "كبسة", "دجاج", "طاووق", "بيتزا", "همبرغر", "شاورما لحمة", "شاورما دجاج", "كفتة", "سمك", "سجق", "كنتكي", "مقانق", "فاهيتا", "فيلادلفيا", "مشاوي", "برياني", "اسكالوب دجاج", "بروستد", "كرسبي", "فرنسيسكو", "ناغتس", "أرز", "تطبيقة", "صيني", "روستو", "مكسيكانا", "صيادية", "منسف لحمة", "ستيك", "غريل أرجنتيني"], "spec50", spice_order, "50غ خاصة")
 
-    with st.expander("🌿 بهارات حب (50 غ و 20 غ)"):
-        render_list(["-بهارات حب 50 غ دزينة", "بهار حلو", "فلفل أسود", "كمون", "كزبرة", "يانسون", "حبة البركة", "خميرة", "حبق", "لوما", "زنجبيل", "شومر", "حلبة"], "sph50", spice_order, "50غ حب")
-        render_list(["-بهارات حب 20 غ دزينة", "جوزة الطيب", "محلب", "قرنفل", "هال", "عصفر"], "sph20", spice_order, "20غ حب")
+    with st.expander("🌿 بهارات حب"):
+        render_list(["-بهارات حب 50 غ", "بهار حلو", "فلفل أسود", "كمون", "كزبرة", "يانسون", "حبة البركة", "خميرة", "حبق", "لوما", "زنجبيل", "شومر", "حلبة"], "sph50", spice_order, "50غ حب")
+        render_list(["-بهارات حب 20 غ", "جوزة الطيب", "محلب", "قرنفل", "هال", "عصفر"], "sph20", spice_order, "20غ حب")
 
     with st.expander("🍃 بهارات ناعمة 20 غ"):
         render_list(["جوزة الطيب", "محلب", "نعنع", "قرنفل", "هال", "زنجبيل", "بهار أبيض", "مردكوش"], "spn20", spice_order, "20غ ناعم")
 
     with st.expander("📋 أصناف متنوعة / تعبئة مختلفة"):
-        render_list(["-بيكربونات", "بيكربونات (100 غ × 12)", "بيكربونات (500 غ)", "بيكربونات (1000 غ)", "-حامض", "حامض (100 غ × 12)", "حامض (200 غ × 12)", "حامض (500 غ)", "حامض (1000 غ)", "-سماق", "سماق (200 غ)", "سماق (500 غ)", "سماق (1000 غ)", "-يانسون حب", "يانسون حب (200 غ)", "يانسون حب (500 غ)", "يانسون حب (1000 غ)", "-دقة نفسا", "دقة نفسا (100 غ × 12)", "دقة نفسا (200 غ × 12)", "-أصناف متنوعة", "قرفة عود (100 غ × 12)", "قرفة عود (200 غ × 12)", "دقة كبة حب (100 غ × 12)", "ورق غار (50 غ × 12)", "ورق غار (10 غ × 12)", "لوما (100 غ × 12)", "زعتر بيتزا (50 غ × 12)", "خلطة للسلق (100 غ)", "خلطة للسلق (200 غ)", "إكليل الجبل (50 غ × 12)"], "spmisc", spice_order, "تعبئة مختلفة")
+        render_list(["-بيكربونات", "بيكربونات (100 غ)", "بيكربونات (500 غ)", "بيكربونات (1000 غ)", "-حامض", "حامض (100 غ)", "حامض (200 غ)", "حامض (500 غ)", "حامض (1000 غ)", "-سماق", "سماق (200 غ)", "سماق (500 غ)", "سماق (1000 غ)", "-يانسون حب", "يانسون حب (200 غ)", "يانسون حب (500 غ)", "يانسون حب (1000 غ)", "-دقة نفسا", "دقة نفسا (100 غ)", "دقة نفسا (200 غ)", "-أصناف متنوعة", "قرفة عود (100 غ)", "قرفة عود (200 غ)", "دقة كبة حب (100 غ)", "ورق غار (50 غ)", "ورق غار (10 غ)", "لوما (100 غ)", "زعتر بيتزا (50 غ)", "خلطة للسلق (100 غ)", "خلطة للسلق (200 غ)", "إكليل الجبل (50 غ)"], "spmisc", spice_order, "تعبئة مختلفة")
 
     if st.button("🚀 إرسال طلبية البهارات", use_container_width=True):
         if customer_s and spice_order:
             msg = f"طلبية بهارات: {customer_s}\n" + "\n".join([f"• {k}: {v}" for k, v in spice_order.items()])
-            st.markdown(f'<a href="https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}" target="_blank" style="background:#25d366;color:white;padding:15px;display:block;text-align:center;text-decoration:none;border-radius:10px;font-weight:bold;">تأكيد الإرسال للشركة</a>', unsafe_allow_html=True)
+            st.markdown(f'<a href="https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}" target="_blank" style="background:#25d366;color:white;padding:15px;display:block;text-align:center;text-decoration:none;border-radius:10px;font-weight:bold;">تأكيد الإرسال</a>', unsafe_allow_html=True)
     if st.button("🔙 عودة"): st.session_state.page = 'home'; st.rerun()
