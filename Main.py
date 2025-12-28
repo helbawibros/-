@@ -1,38 +1,85 @@
-# --- نموذج الحبوب المطور ---
+Import streamlit as st
+import urllib.parse
+
+# 1. إعدادات الصفحة
+st.set_page_config(page_title="شركة حلباوي إخوان", layout="wide")
+
+# 2. تصميم الواجهة (CSS)
+st.markdown("""
+    <style>
+    .main { direction: rtl; text-align: right; }
+    .stNumberInput label { color: #1E3A8A !important; font-weight: bold; }
+    .header-box { background-color: #1E3A8A; color: white; text-align: center; padding: 20px; border-radius: 15px; margin-bottom: 25px; }
+    </style>
+    """, unsafe_allow_html=True)
+
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+
+# الرقم الصحيح لاستقبال الطلبات
+RECEIVING_NUMBER = "9613220893"
+
+# --- الصفحة الرئيسية ---
+if st.session_state.page == 'home':
+    # عرض الصورة (السطر 24 المعدل)
+    try:
+        st.image("image.png", use_container_width=True)
+    except:
+        st.write("شركة حلباوي إخوان")
+    
+    st.markdown('<h2 style="text-align: center; color: #1E3A8A;">نظام تسجيل الطلبات الرقمي</h2>', unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("🚀 ابدأ تسجيل طلبية جديدة", use_container_width=True):
+            st.session_state.page = 'menu'
+
+# --- قائمة اختيار النموذج ---
+elif st.session_state.page == 'menu':
+    st.markdown('<div class="header-box"><h1>اختر نوع الطلبية</h1></div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("🌾 نموذج الحبوب", use_container_width=True): st.session_state.page = 'grains'
+    with c2:
+        if st.button("🌶️ نموذج البهارات", use_container_width=True): st.session_state.page = 'spices'
+    if st.button("⬅️ عودة"): st.session_state.page = 'home'
+
+# --- نموذج الحبوب ---
 elif st.session_state.page == 'grains':
-    st.markdown('<div class="header-box"><h2>📦 طلبية حبوب - النموذج الرقمي</h2></div>', unsafe_allow_html=True)
+    st.markdown('<div class="header-box"><h2>📦 طلبية حبوب</h2></div>', unsafe_allow_html=True)
     customer = st.text_input("👤 إسم الزبون:")
+    order = {}
     
-    # سنضع كود الـ HTML هنا ليرسم الجدول الأزرق
-    grain_table_html = """
-    <div style="direction: rtl; font-family: sans-serif; color: #1E3A8A;">
-        <table style="width: 100%; border-collapse: collapse; border: 2px solid #1E3A8A;">
-            <tr style="background-color: #f0f7ff;">
-                <th colspan="3" style="border: 1px solid #1E3A8A; padding: 10px;">تعبئة 1000 غ</th>
-            </tr>
-            <tr style="background-color: #e2e8f0; font-size: 12px;">
-                <th style="border: 1px solid #1E3A8A; width: 40%;">الصنف</th>
-                <th style="border: 1px solid #1E3A8A; width: 30%;">العدد</th>
-                <th style="border: 1px solid #1E3A8A; width: 30%;">الطرد</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #1E3A8A; padding: 5px;">حمص فحلي - 12 -</td>
-                <td style="border: 1px solid #1E3A8A;"><input type="number" style="width:100%; border:none; text-align:center;"></td>
-                <td style="border: 1px solid #1E3A8A;"><input type="number" style="width:100%; border:none; text-align:center;"></td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #1E3A8A; padding: 5px;"><b>غود مارك 907 غ</b></td>
-                <td style="border: 1px solid #1E3A8A;"><input type="number" style="width:100%; border:none; text-align:center;"></td>
-                <td style="border: 1px solid #1E3A8A;"><input type="number" style="width:100%; border:none; text-align:center;"></td>
-            </tr>
-        </table>
-    </div>
-    """
+    # قائمة أصناف سريعة (يمكنك زيادتها)
+    items = ["فحلي-12", "فحلي-10", "عدس", "فاصوليا", "حمص", "أرز مصري", "سكر 2ك"]
+    for i in items:
+        q = st.number_input(i, min_value=0, step=1, key=f"g_{i}")
+        if q > 0: order[i] = q
+
+    if st.button("✅ إرسال الطلب للشركة"):
+        if customer and order:
+            msg = f"طلبية حبوب جديدة\nالزبون: {customer}\n---\n" + "\n".join([f"• {k}: {v}" for k, v in order.items()])
+            # رابط الواتساب المباشر للرقم الجديد
+            link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
+            st.markdown(f'<a href="{link}" target="_blank" style="background-color: #25d366; color: white; padding: 15px; text-decoration: none; border-radius: 10px; display: block; text-align: center;">إضغط هنا لإرسال الطلبية لواتساب الشركة</a>', unsafe_allow_html=True)
     
-    # عرض الجدول الأزرق
-    st.components.v1.html(grain_table_html, height=300, scrolling=True)
+    if st.button("🔙 عودة"): st.session_state.page = 'menu'
 
-    if st.button("🔙 عودة"): 
-        st.session_state.page = 'menu'
-        st.rerun()
+# --- نموذج البهارات ---
+elif st.session_state.page == 'spices':
+    st.markdown('<div class="header-box"><h2>🌶️ طلبية بهارات</h2></div>', unsafe_allow_html=True)
+    customer_s = st.text_input("👤 إسم الزبون:")
+    order_s = {}
+    
+    items_s = ["بهار حلو", "فلفل أسود", "كمون", "قرفة", "سبع بهارات"]
+    for i in items_s:
+        q = st.number_input(i, min_value=0, step=1, key=f"s_{i}")
+        if q > 0: order_s[i] = q
 
+    if st.button("✅ إرسال الطلب للشركة"):
+        if customer_s and order_s:
+            msg = f"طلبية بهارات جديدة\nالزبون: {customer_s}\n---\n" + "\n".join([f"• {k}: {v}" for k, v in order_s.items()])
+            link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
+            st.markdown(f'<a href="{link}" target="_blank" style="background-color: #25d366; color: white; padding: 15px; text-decoration: none; border-radius: 10px; display: block; text-align: center;">إضغط هنا لإرسال الطلبية لواتساب الشركة</a>', unsafe_allow_html=True)
+    
+    if st.button("🔙 عودة"): st.session_state.page = 'menu'
