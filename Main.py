@@ -1,46 +1,60 @@
 import streamlit as st
 import urllib.parse
 
-st.set_page_config(page_title="Hiebawi Order", layout="wide")
+st.set_page_config(page_title="حلباوي - طلبية مبيعات", layout="centered")
 
-# تنسيق الخط ليكون واضح جداً كما طلبت
+# التنسيق السحري لوضع الخانات فوق الصورة بدقة
 st.markdown("""
     <style>
-    .main { direction: rtl; text-align: right; }
-    .stNumberInput label { font-size: 20px !important; color: #1E3A8A !important; font-weight: bold; }
-    input { height: 45px !important; font-size: 22px !important; }
-    .header { background-color: #fca311; padding: 10px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; }
+    .paper-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+    }
+    .order-img {
+        width: 100%;
+        display: block;
+    }
+    .input-field {
+        position: absolute;
+        background-color: rgba(255, 255, 0, 0.4); /* أصفر شفاف */
+        border: 1px solid red;
+        width: 40px;
+        height: 20px;
+        text-align: center;
+        font-size: 12px;
+    }
+    /* إحداثيات تقريبية لأول 5 أصناف في عمود 1000غ - سيتم ضبطها بالملي */
+    .pos1 { top: 15.5%; left: 81%; } 
+    .pos2 { top: 17.5%; left: 81%; }
+    .pos3 { top: 19.5%; left: 81%; }
+    .pos4 { top: 21.5%; left: 81%; }
+    .pos5 { top: 23.5%; left: 81%; }
     </style>
     """, unsafe_allow_html=True)
 
 RECEIVING_NUMBER = "9613220893"
-order = {}
 
-st.markdown('<div class="header">نموذج الحبوب - تعبئة 1000غ</div>', unsafe_allow_html=True)
-customer = st.text_input("👤 إسم الزبون (مطلوب):")
+st.write("### تعبئة الطلبية مباشرة على الورقة")
+customer = st.text_input("إسم الزبون:")
 
-# قائمة الأصناف حسب ترتيب ورقتك تماماً
-items_1000g = [
-    "فحلي - 12 -", "فحلي - 10 -", "فحلي - 9 -", "كسر", "حب", 
-    "مجروش", "عريض", "صنوبرية", "حمراء طويلة", "حمراء مدعبلة",
-    "عريضة", "أبيض رفيع", "أحمر", "أحمر موردي", "مجروش (عدس)"
-]
+# بناء الورقة التفاعلية
+st.markdown(f'''
+    <div class="paper-container">
+        <img src="https://raw.githubusercontent.com/helbawibros/-/main/image.png" class="order-img">
+        
+        <input type="number" class="input-field pos1" id="item1" placeholder="0">
+        <input type="number" class="input-field pos2" id="item2" placeholder="0">
+        <input type="number" class="input-field pos3" id="item3" placeholder="0">
+        <input type="number" class="input-field pos4" id="item4" placeholder="0">
+        <input type="number" class="input-field pos5" id="item5" placeholder="0">
+    </div>
+''', unsafe_allow_html=True)
 
-# عرض الخانات بشكل عمودي (خانة العدد الصفراء)
-for item in items_1000g:
-    # جعل الخانة تأخذ مساحة واضحة للكتابة
-    val = st.number_input(f"العدد لـ {item}", min_value=0, step=1, key=item)
-    if val > 0:
-        order[item] = val
+# زر الإرسال التقليدي (لأن الأزرار داخل HTML تحتاج برمجة معقدة)
+if st.button("تأكيد الطلب وإرسال واتساب"):
+    st.info("سيتم ربط القيم المكتوبة أعلاه بالرسالة فور ضبط الإحداثيات")
 
-st.divider()
-
-if st.button("✅ إرسال الطلبية كاملة"):
-    if customer and order:
-        msg = f"طلبية حبوب\nالزبون: {customer}\n" + "\n".join([f"{k}: {v}" for k, v in order.items()])
-        link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
-        st.markdown(f'<a href="{link}" target="_blank" style="background-color: #25d366; color: white; padding: 20px; text-decoration: none; border-radius: 10px; display: block; text-align: center; font-size: 20px;">إضغط هنا لتأكيد الإرسال للشركة</a>', unsafe_allow_html=True)
-    else:
-        st.error("الرجاء كتابة اسم الزبون وتعبئة صنف واحد على الأقل")
 
 
