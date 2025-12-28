@@ -1,56 +1,113 @@
 import streamlit as st
 import urllib.parse
 
-# إعدادات التطبيق الرسمي لشركة حلباوي إخوان - Helbawibros
-st.set_page_config(page_title="Helbawibros Orders", layout="wide")
+st.set_page_config(page_title="شركة حلباوي إخوان", layout="wide")
 
+# تصميم الجداول لتطابق الورقة الرسمية
 st.markdown("""
     <style>
-    .header { color: #1E3A8A; text-align: center; font-family: 'Arial'; border-bottom: 3px solid #1E3A8A; padding-bottom: 10px; }
-    .item-row { background-color: #F8FAFC; padding: 10px; border-radius: 5px; border-right: 5px solid #1E3A8A; margin-bottom: 5px; font-weight: bold; color: #1E3A8A; }
-    .cat-title { background-color: #1E3A8A; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 25px; font-size: 20px; }
-    .wa-button { background-color: #25D366; color: white; padding: 20px; text-align: center; border-radius: 12px; font-size: 22px; font-weight: bold; text-decoration: none; display: block; }
+    .main { direction: rtl; }
+    .stNumberInput label { font-size: 14px !important; color: #1E3A8A !important; font-weight: bold; }
+    div[data-testid="stVerticalBlock"] > div { border: 1px solid #e1e4e8; padding: 5px; border-radius: 5px; }
+    .header-box { background-color: #1E3A8A; color: white; text-align: center; padding: 10px; border-radius: 5px; }
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="header">Helbawibros <br> طلب مبيعات شركة حلباوي إخوان</h1>', unsafe_allow_html=True)
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
 
-# بيانات الطلبية
-c1, c2 = st.columns(2)
-with c1: customer = st.text_input("اسم الزبون / Customer:")
-with c2: salesman = st.text_input("اسم المندوب / Salesman:")
+# --- الصفحة الرئيسية ---
+if st.session_state.page == 'home':
+    st.markdown('<div class="header-box"><h1>شركة حلباوي إخوان التجاريّة</h1><p>تأسست عام 1974</p></div>', unsafe_allow_html=True)
+    st.write("")
+    if st.button("📄 فتح نماذج الطلبيات"):
+        st.session_state.page = 'menu'
 
-# القائمة الكاملة المستخرجة من الصور
-sections = {
-    "تعبئة 1000غ": ["فحلي - 12", "فحلي - 10", "فحلي - 9", "كسر", "حب", "مجروش", "عريض", "أبيض رفيع", "أحمر", "أحمر موردي"],
-    "تعبئة 500غ": ["مفتول", "محمص", "محمص بلدي", "نشاء ناعم", "زعتر إكسترا", "مغربية", "عدس مجروش", "فاصوليا عريضة"],
-    "بهارات ناعمة (دزينة)": ["بهار حلو", "فلفل أسود", "فلفل أحمر", "قرفة", "سبع بهارات", "دقة كعك", "كمون", "كزبرة", "كاري", "سماق"],
-    "بهارات حب": ["بهار حلو حب", "فلفل أسود حب", "كمون حب", "كزبرة حب", "يانسون", "حبة البركة", "خردل", "سمسم"],
-    "أصناف متنوعة": ["أرز أميركي", "أرز مصري", "سكر حب", "برغل ناعم", "برغل خشن", "عدس حب", "فاصوليا عريضة", "حمص حب"]
-}
+# --- القائمة الرئيسية ---
+elif st.session_state.page == 'menu':
+    st.subheader("اختر نوع الطلبية:")
+    if st.button("🌾 نموذج الحبوب (أبيض)"): st.session_state.page = 'grains'
+    if st.button("🌶️ نموذج البهارات (أزرق)"): st.session_state.page = 'spices'
+    if st.button("⬅️ عودة"): st.session_state.page = 'home'
 
-order_list = []
+# --- نموذج الحبوب الكامل ---
+elif st.session_state.page == 'grains':
+    st.markdown('<h2 style="text-align: center; color: #1E3A8A;">نموذج طلب مبيعات (حبوب)</h2>', unsafe_allow_html=True)
+    
+    cust = st.text_input("إسم الزبون:")
+    sale = st.text_input("إسم المندوب:")
+    
+    order = {}
+    
+    # تقسيم الورقة لـ 4 أعمدة كما في الصورة
+    c1, c2, c3, c4 = st.columns(4)
+    
+    with c1:
+        st.info("تعبئة 1000غ")
+        items1 = ["فحلي-12", "فحلي-10", "فحلي-9", "كسر", "حب", "مجروش", "عريض", "صنوبرية", "حمراء طويلة", "حمراء مدعبلة", "عريضة", "أبيض رفيع", "أحمر", "أحمر موردي", "مجروش عريض", "أسمر ناعم", "أسمر خشن", "أشقر ناعم", "أشقر خشن", "أميركي", "إيطالي", "مصري", "بسمتي", "عنبري", "ناعم", "حب", "أسمر", "ناعم", "فرخة", "سميد", "عود مدبل"]
+        for i in items1:
+            q = st.number_input(i, min_value=0, step=1, key=f"g1_{i}")
+            if q > 0: order[f"{i} (1000غ)"] = q
 
-# بناء الواجهة برمجياً
-for section, items in sections.items():
-    st.markdown(f'<p class="cat-title">{section}</p>', unsafe_allow_html=True)
-    for item in items:
-        cols = st.columns([3, 1, 1])
-        with cols[0]: st.markdown(f'<div class="item-row">{item}</div>', unsafe_allow_html=True)
-        with cols[1]: count = st.number_input("العدد", min_value=0, step=1, key=f"c_{item}", label_visibility="collapsed")
-        with cols[2]: pack = st.number_input("الطرد", min_value=0, step=1, key=f"p_{item}", label_visibility="collapsed")
-        
-        if count > 0 or pack > 0:
-            order_list.append(f"▫️ {item}: (العدد: {count} | الطرد: {pack})")
+    with c2:
+        st.info("تعبئة 500غ")
+        items2 = ["مفتور", "محمص", "محمص بلدي", "حب", "ناعم", "محوج", "إكسترا", "حلبي", "سوبر إكسترا", "ببيسة سادة", "ببيسة مشكلة", "قمبز", "دخن", "بزر نبال النمساوي", "بيبي فود", "مغلي جاهز", "مغلي بدون سكر", "مهلبية", "مهلبية كبير", "سحلب", "خلطة كريسبي", "خلطة بروستد", "كسكسوس", "بوشار", "مجروشة", "حلو", "مر", "ناعم", "نبات", "بشرة", "مبروش", "مبشور"]
+        for i in items2:
+            q = st.number_input(i, min_value=0, step=1, key=f"g2_{i}")
+            if q > 0: order[f"{i} (500غ)"] = q
 
-# زر الواتساب
-st.divider()
-company_phone = "96170000000" # استبدل برقمك الفعلي
+    with c3:
+        st.info("تعبئة 200غ")
+        items3 = ["مفتور", "محمص", "محمص بلدي", "حب", "ناعم", "شوكولا", "ملون", "نايلون", "كرتون", "محوج", "حلبي", "برش جوز الهند", "بامية زهرة", "فلافل علب", "كشك بلدي", "بطاطا شيبس", "كاكاو", "كعك مطحون", "بزر كتان"]
+        for i in items3:
+            q = st.number_input(i, min_value=0, step=1, key=f"g3_{i}")
+            if q > 0: order[f"{i} (200غ)"] = q
 
-if st.button("تجهيز رسالة الواتساب للشركة"):
-    if not customer or not order_list:
-        st.error("⚠️ يرجى إدخال اسم الزبون والكميات أولاً!")
-    else:
-        full_msg = f"📦 *طلب مبيعات جديد - Helbawibros*\n👤 *الزبون:* {customer}\n👨‍💼 *المندوب:* {salesman}\n" + "-"*20 + "\n" + "\n".join(order_list)
-        wa_url = f"https://wa.me/{company_phone}?text={urllib.parse.quote(full_msg)}"
-        st.markdown(f'<a href="{wa_url}" target="_blank" class="wa-button">إرسال عبر واتساب الآن ✅</a>', unsafe_allow_html=True)
+    with c4:
+        st.info("مختلف")
+        items4 = ["حمص", "فول", "فاصوليا", "عدس", "برغل", "أميركي 2 كلغ", "أميركي 5 كلغ", "إيطالي 2 كلغ", "إيطالي 5 كلغ", "مصري 2 كلغ", "مصري 5 كلغ", "سكر 2 كلغ", "سكر 5 كلغ", "طحين ماركة 5 كلغ", "طحين مهبل 5 كلغ", "برغل أسمر ناعم 5ك", "برغل أسمر خشن 5ك", "برش جوز الهند", "بكينغ بودر", "فريميسال", "كاكاو", "صنوبر", "لوز", "فستق حلبي", "زبيب", "كاجو", "ملوخية", "بامية", "كشك", "زهورات"]
+        for i in items4:
+            q = st.number_input(i, min_value=0, step=1, key=f"g4_{i}")
+            if q > 0: order[i] = q
+
+    if st.button("✅ إرسال طلب الحبوب"):
+        if cust:
+            msg = f"طلبية حبوب\nالزبون: {cust}\nالمندوب: {sale}\n" + "\n".join([f"- {k}: {v}" for k, v in order.items()])
+            st.markdown(f'[إضغط للإرسال](https://wa.me/96176510343?text={urllib.parse.quote(msg)})')
+    if st.button("🔙"): st.session_state.page = 'menu'
+
+# --- نموذج البهارات الكامل ---
+elif st.session_state.page == 'spices':
+    st.markdown('<h2 style="text-align: center; color: #1E3A8A;">نموذج طلب مبيعات (بهارات)</h2>', unsafe_allow_html=True)
+    cust = st.text_input("إسم الزبون:")
+    sale = st.text_input("إسم المندوب:")
+    order_s = {}
+    
+    s1, s2, s3 = st.columns(3)
+    
+    with s1:
+        st.info("بهارات ناعمة 50غ")
+        items_s1 = ["بهار حلو", "فلفل أسود", "فلفل أحمر", "قرفة", "سبع بهارات", "دقة كعك", "كمون", "كزبرة", "كراوية", "ثوم", "بصل", "سماق", "عقدة صفراء", "بابريكا", "حمض", "زعتر أوريغانو"]
+        for i in items_s1:
+            q = st.number_input(i, min_value=0, step=1, key=f"s1_{i}")
+            if q > 0: order_s[f"{i} (50غ)"] = q
+
+    with s2:
+        st.info("بهارات حب 50غ")
+        items_s2 = ["بهار حلو", "فلفل أسود", "كمون", "كزبرة", "يانسون", "حبة البركة", "خردل", "حبق", "لوما", "زنجبيل", "شومر", "حلبة"]
+        for i in items_s2:
+            q = st.number_input(i, min_value=0, step=1, key=f"s2_{i}")
+            if q > 0: order_s[f"{i} (حب 50غ)"] = q
+
+    with s3:
+        st.info("بهارات خاصة / فلت")
+        items_s3 = ["كبة", "مغربية", "فلافل", "كبسة", "دجاج", "طاووق", "بيتزا", "همبرغر", "شاورما لحمة", "شاورما دجاج", "كفتة", "ستيك", "بروستد", "شيش طاووق", "سمك", "سجق", "تتبيلة صيني", "منسف", "برياني"]
+        for i in items_s3:
+            q = st.number_input(i, min_value=0, step=1, key=f"s3_{i}")
+            if q > 0: order_s[f"{i} (فلت)"] = q
+
+    if st.button("✅ إرسال طلب البهارات"):
+        if cust:
+            msg = f"طلبية بهارات\nالزبون: {cust}\nالمندوب: {sale}\n" + "\n".join([f"- {k}: {v}" for k, v in order_s.items()])
+            st.markdown(f'[إضغط للإرسال](https://wa.me/96176510343?text={urllib.parse.quote(msg)})')
+    if st.button("🔙"): st.session_state.page = 'menu'
