@@ -1,90 +1,72 @@
-import streamlit as st
-import urllib.parse
-
-# إعدادات الصفحة
-st.set_page_config(page_title="تجرية حلباوي إخوان", layout="wide")
-
-# تصميم الواجهة
-st.markdown("""
-    <style>
-    .main { direction: rtl; text-align: right; }
-    .stNumberInput label { color: #1E3A8A !important; font-weight: bold; }
-    .header-box { background-color: #1E3A8A; color: white; text-align: center; padding: 10px; border-radius: 10px; }
-    .img-container { border: 3px solid #1E3A8A; padding: 5px; background: white; border-radius: 10px; margin-bottom: 20px; }
-    </style>
-    """, unsafe_allow_html=True)
-
-if 'page' not in st.session_state:
-    st.session_state.page = 'home'
-
-RECEIVING_NUMBER = "9613220893"
-
-# --- الصفحة الرئيسية ---
-if st.session_state.page == 'home':
-    st.image("https://raw.githubusercontent.com/helbawibros/-/main/Logo%20.JPG", use_container_width=True)
-    st.markdown('<h2 style="text-align: center; color: #1E3A8A;">تجربة نظام الطلبات</h2>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🌾 فتح نموذج الحبوب", use_container_width=True):
-            st.session_state.page = 'grains'
-            st.rerun()
-    with col2:
-        if st.button("🌶️ فتح نموذج البهارات", use_container_width=True):
-            st.session_state.page = 'spices'
-            st.rerun()
-
-# --- تجربة نموذج الحبوب ---
+# --- تجربة نموذج الحبوب المطور (الجدول الأزرق التفاعلي) ---
 elif st.session_state.page == 'grains':
-    st.markdown('<div class="header-box"><h3>نموذج الحبوب (صورة الـ A4 كمرجع)</h3></div>', unsafe_allow_html=True)
+    st.markdown('<div class="header-box"><h3>نموذج الحبوب (تفاعلي)</h3></div>', unsafe_allow_html=True)
     
-    # عرض صورة الورقة البيضاء (الحبوب)
-    st.markdown('<div class="img-container">', unsafe_allow_html=True)
-    st.image("https://raw.githubusercontent.com/helbawibros/-/main/image.png", use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    # كود الـ HTML والـ CSS للجدول الكامل
+    html_order_form = """
+    <style>
+        .full-table { direction: rtl; width: 100%; border-collapse: collapse; font-family: Arial; color: #1E3A8A; border: 2px solid #1E3A8A; }
+        .full-table th, .full-table td { border: 1px solid #1E3A8A; text-align: center; padding: 4px; font-size: 11px; }
+        .main-head { background-color: #f0f7ff; font-weight: bold; font-size: 13px; }
+        .side-title { writing-mode: vertical-rl; transform: rotate(180deg); background: #f9f9f9; font-weight: bold; width: 25px; }
+        input { width: 100%; border: none; text-align: center; color: blue; font-weight: bold; background: #fffde7; outline: none; }
+        input:focus { background: #fff59d; }
+    </style>
 
-    customer = st.text_input("👤 إسم الزبون:")
-    
-    # عينة أصناف للتجربة من الجدول
-    items = ["فحلي-12", "فحلي-10", "عدس مجروش", "فاصوليا عريضة", "حمص حب", "سكر 2ك"]
-    order = {}
-    
-    col1, col2 = st.columns(2)
-    for idx, item in enumerate(items):
-        with (col1 if idx % 2 == 0 else col2):
-            q = st.number_input(item, min_value=0, step=1, key=f"g_{item}")
-            if q > 0: order[item] = q
+    <table class="full-table">
+        <tr class="main-head">
+            <th colspan="4">تعبئة 1000 غ</th>
+            <th colspan="4">تعبئة 500 غ</th>
+        </tr>
+        <tr class="main-head">
+            <th>الصنف</th><th>النوع</th><th>العدد</th><th>الطرد</th>
+            <th>الصنف</th><th>النوع</th><th>العدد</th><th>الطرد</th>
+        </tr>
+        
+        <tr>
+            <td rowspan="4" class="side-title">حمص</td>
+            <td>فحلي - 12 -</td><td><input type="number"></td><td><input type="number"></td>
+            <td rowspan="3" class="side-title">سمسم</td>
+            <td>مقشور</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td>فحلي - 10 -</td><td><input type="number"></td><td><input type="number"></td>
+            <td>محمص</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td>فحلي - 9 -</td><td><input type="number"></td><td><input type="number"></td>
+            <td>بلدي</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td>كسر</td><td><input type="number"></td><td><input type="number"></td>
+            <td rowspan="2" class="side-title">نشاء</td>
+            <td>حب</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
 
-    if st.button("✅ تجربة إرسال الطلب", use_container_width=True):
-        if customer and order:
-            msg = f"تجربة طلبية\nالزبون: {customer}\n---\n" + "\n".join([f"• {k}: {v}" for k, v in order.items()])
-            link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
-            st.markdown(f'<a href="{link}" target="_blank" style="background-color: #25d366; color: white; padding: 15px; text-decoration: none; border-radius: 10px; display: block; text-align: center; font-weight: bold;">اضغط للإرسال للشركة</a>', unsafe_allow_html=True)
+        <tr>
+            <td rowspan="4" class="side-title">طحين</td>
+            <td>غود ميدل</td><td><input type="number"></td><td><input type="number"></td>
+            <td>ناعم</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td><b>غود مارك 907 غ</b></td><td><input type="number"></td><td><input type="number"></td>
+            <td rowspan="4" class="side-title">زعتر</td>
+            <td>محوج</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td>زيرو</td><td><input type="number"></td><td><input type="number"></td>
+            <td>اكسترا</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+        <tr>
+            <td>فرخة</td><td><input type="number"></td><td><input type="number"></td>
+            <td>حلبي</td><td><input type="number"></td><td><input type="number"></td>
+        </tr>
+    </table>
+    """
     
-    if st.button("🔙 عودة"):
-        st.session_state.page = 'home'
-        st.rerun()
+    # عرض الجدول
+    components.html(html_order_form, height=800, scrolling=True)
 
-# --- تجربة نموذج البهارات ---
-elif st.session_state.page == 'spices':
-    st.markdown('<div class="header-box"><h3>نموذج البهارات (الورقة الزرقاء)</h3></div>', unsafe_allow_html=True)
-    
-    # عرض صورة الورقة الزرقاء (البهارات)
-    st.markdown('<div class="img-container">', unsafe_allow_html=True)
-    st.image("https://raw.githubusercontent.com/helbawibros/-/main/Logo%20.JPG", use_container_width=True) # مؤقتا حتى ترفع الصورة الزرقاء
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    customer_s = st.text_input("👤 إسم الزبون:")
-    # أصناف تجريبية
-    items_s = ["بهار حلو", "فلفل أسود", "كمون ناعم"]
-    order_s = {}
-    
-    s1, s2 = st.columns(2)
-    for idx, item in enumerate(items_s):
-        with (s1 if idx % 2 == 0 else s2):
-            q = st.number_input(item, min_value=0, step=1, key=f"s_{item}")
-            if q > 0: order_s[item] = q
-            
-    if st.button("🔙 عودة"):
+    if st.button("🔙 عودة للقائمة"):
         st.session_state.page = 'home'
         st.rerun()
