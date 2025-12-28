@@ -7,7 +7,7 @@ st.set_page_config(page_title="شركة حلباوي إخوان", layout="wide")
 # 2. تصميم الواجهة المطور (حل مشكلة اختفاء الأسماء)
 st.markdown("""
     <style>
-    /* تثبيت خلفية التطبيق العامّة */
+    /* تثبيت خلفية التطبيق العامّة داكنة */
     .stApp { background-color: #0E1117; }
     
     .category-header { 
@@ -15,7 +15,7 @@ st.markdown("""
         font-weight: bold; font-size: 18px; margin-top: 15px; border-right: 5px solid #fca311; text-align: right;
     }
 
-    /* الحل: خلفية زرقاء ثابتة للاسم لضمان ظهوره على أي هاتف */
+    /* الحل النهائي: خلفية زرقاء ثابتة للاسم لضمان ظهوره مهما كان وضع الهاتف */
     .item-name { 
         color: white !important; 
         font-weight: bold !important; 
@@ -28,7 +28,7 @@ st.markdown("""
         margin-bottom: 5px;
     }
 
-    /* خانات الإدخال صفراء ثابتة */
+    /* خانات الإدخال صفراء ثابتة بخط أسود عريض */
     input { 
         background-color: #ffffcc !important; color: black !important; font-weight: bold !important; 
         height: 48px !important; font-size: 24px !important; -webkit-text-fill-color: black !important;
@@ -52,7 +52,7 @@ def render_list(items_list, key_suffix, order_dict, label_suffix):
         else:
             c1, c2 = st.columns([3, 1.2])
             with c1: 
-                # الصنف الآن يظهر داخل مربع أزرق بخط أبيض
+                # الصنف الآن يظهر داخل مربع أزرق بخط أبيض ثابت
                 st.markdown(f'<div class="item-name">{item}</div>', unsafe_allow_html=True)
             with c2:
                 q = st.number_input("", min_value=0, step=1, key=f"{key_suffix}_{item}", label_visibility="collapsed")
@@ -115,4 +115,3 @@ elif st.session_state.page == 'spices':
             msg = f"طلبية بهارات: {customer_s}\n" + "\n".join([f"• {k}: {v}" for k, v in spice_order.items()])
             st.markdown(f'<a href="https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}" target="_blank" style="background:#25d366;color:white;padding:15px;display:block;text-align:center;text-decoration:none;border-radius:10px;font-weight:bold;">تأكيد الإرسال للشركة</a>', unsafe_allow_html=True)
     if st.button("🔙 عودة"): st.session_state.page = 'home'; st.rerun()
-
