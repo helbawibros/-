@@ -1,53 +1,90 @@
 import streamlit as st
 import urllib.parse
 
-# 1. إعداد الصفحة
-st.set_page_config(page_title="Hiebawi Bros", layout="centered")
+# إعدادات الصفحة
+st.set_page_config(page_title="تجرية حلباوي إخوان", layout="wide")
 
-# 2. كود لإظهار الصورة بشكل مضمون
+# تصميم الواجهة
 st.markdown("""
     <style>
     .main { direction: rtl; text-align: right; }
-    .stImage { border: 2px solid #1E3A8A; border-radius: 10px; }
-    .order-box { background-color: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-top: 10px; }
+    .stNumberInput label { color: #1E3A8A !important; font-weight: bold; }
+    .header-box { background-color: #1E3A8A; color: white; text-align: center; padding: 10px; border-radius: 10px; }
+    .img-container { border: 3px solid #1E3A8A; padding: 5px; background: white; border-radius: 10px; margin-bottom: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+
 RECEIVING_NUMBER = "9613220893"
 
-st.title("نموذج مبيعات حلباوي")
-customer = st.text_input("إسم الزبون:")
+# --- الصفحة الرئيسية ---
+if st.session_state.page == 'home':
+    st.image("https://raw.githubusercontent.com/helbawibros/-/main/Logo%20.JPG", use_container_width=True)
+    st.markdown('<h2 style="text-align: center; color: #1E3A8A;">تجربة نظام الطلبات</h2>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🌾 فتح نموذج الحبوب", use_container_width=True):
+            st.session_state.page = 'grains'
+            st.rerun()
+    with col2:
+        if st.button("🌶️ فتح نموذج البهارات", use_container_width=True):
+            st.session_state.page = 'spices'
+            st.rerun()
 
-# رابط الصورة المباشر من مستودعك
-image_url = "https://raw.githubusercontent.com/helbawibros/-/main/image.png"
+# --- تجربة نموذج الحبوب ---
+elif st.session_state.page == 'grains':
+    st.markdown('<div class="header-box"><h3>نموذج الحبوب (صورة الـ A4 كمرجع)</h3></div>', unsafe_allow_html=True)
+    
+    # عرض صورة الورقة البيضاء (الحبوب)
+    st.markdown('<div class="img-container">', unsafe_allow_html=True)
+    st.image("https://raw.githubusercontent.com/helbawibros/-/main/image.png", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# إظهار الصورة 
-try:
-    st.image(image_url, use_container_width=True)
-except:
-    st.error("تعذر تحميل الصورة من السيرفر، يرجى التأكد من اتصال الإنترنت")
+    customer = st.text_input("👤 إسم الزبون:")
+    
+    # عينة أصناف للتجربة من الجدول
+    items = ["فحلي-12", "فحلي-10", "عدس مجروش", "فاصوليا عريضة", "حمص حب", "سكر 2ك"]
+    order = {}
+    
+    col1, col2 = st.columns(2)
+    for idx, item in enumerate(items):
+        with (col1 if idx % 2 == 0 else col2):
+            q = st.number_input(item, min_value=0, step=1, key=f"g_{item}")
+            if q > 0: order[item] = q
 
-st.markdown("---")
-st.subheader("✍️ تعبئة الكميات (حسب ترتيب الورقة)")
+    if st.button("✅ تجربة إرسال الطلب", use_container_width=True):
+        if customer and order:
+            msg = f"تجربة طلبية\nالزبون: {customer}\n---\n" + "\n".join([f"• {k}: {v}" for k, v in order.items()])
+            link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
+            st.markdown(f'<a href="{link}" target="_blank" style="background-color: #25d366; color: white; padding: 15px; text-decoration: none; border-radius: 10px; display: block; text-align: center; font-weight: bold;">اضغط للإرسال للشركة</a>', unsafe_allow_html=True)
+    
+    if st.button("🔙 عودة"):
+        st.session_state.page = 'home'
+        st.rerun()
 
-# سأضع لك أول 5 أصناف بشكل "أزرار كبيرة" لتجربة السرعة والسهولة
-items = ["فحلي-12", "فحلي-10", "فحلي-9", "كسر", "حب"]
-order = {}
-
-for item in items:
-    # تصميم بسيط: اسم الصنف وبجانبه خانة الرقم
-    col_name, col_input = st.columns([3, 1])
-    with col_name:
-        st.write(f"**{item}**")
-    with col_input:
-        val = st.number_input("", min_value=0, step=1, key=item, label_visibility="collapsed")
-        if val > 0:
-            order[item] = val
-
-if st.button("🚀 إرسال الطلب الآن", use_container_width=True):
-    if customer and order:
-        msg = f"طلبية حبوب\nالزبون: {customer}\n" + "\n".join([f"{k}: {v}" for k, v in order.items()])
-        link = f"https://api.whatsapp.com/send?phone={RECEIVING_NUMBER}&text={urllib.parse.quote(msg)}"
-        st.markdown(f'<a href="{link}" target="_blank" style="background:green;color:white;padding:15px;display:block;text-align:center;text-decoration:none;border-radius:10px;">تأكيد الإرسال للشركة</a>', unsafe_allow_html=True)
-    else:
-        st.warning("يرجى إدخال الإسم والكمية")
+# --- تجربة نموذج البهارات ---
+elif st.session_state.page == 'spices':
+    st.markdown('<div class="header-box"><h3>نموذج البهارات (الورقة الزرقاء)</h3></div>', unsafe_allow_html=True)
+    
+    # عرض صورة الورقة الزرقاء (البهارات)
+    st.markdown('<div class="img-container">', unsafe_allow_html=True)
+    st.image("https://raw.githubusercontent.com/helbawibros/-/main/Logo%20.JPG", use_container_width=True) # مؤقتا حتى ترفع الصورة الزرقاء
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    customer_s = st.text_input("👤 إسم الزبون:")
+    # أصناف تجريبية
+    items_s = ["بهار حلو", "فلفل أسود", "كمون ناعم"]
+    order_s = {}
+    
+    s1, s2 = st.columns(2)
+    for idx, item in enumerate(items_s):
+        with (s1 if idx % 2 == 0 else s2):
+            q = st.number_input(item, min_value=0, step=1, key=f"s_{item}")
+            if q > 0: order_s[item] = q
+            
+    if st.button("🔙 عودة"):
+        st.session_state.page = 'home'
+        st.rerun()
